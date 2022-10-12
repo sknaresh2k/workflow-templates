@@ -3,10 +3,6 @@ name: tf-workflow-deploy-template
 on:
   workflow_call:
     inputs:
-      tfvarsFile:
-        required: true
-        type: string
-        description: Location of Terraform variables
       backendFile:
         required: true
         type: string
@@ -46,7 +42,7 @@ jobs:
 
     - name: Terraform Apply
       id: apply
-      run: terraform apply -auto-approve -var-file="${{ inputs.tfvarsFile }}"
+      run: terraform apply -auto-approve
       env:
         ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID}}

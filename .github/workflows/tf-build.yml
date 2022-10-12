@@ -3,10 +3,6 @@ name: tf-workflow-build-template
 on:
   workflow_call:
     inputs:
-      tfvarsFile:
-        required: true
-        type: string
-        description: Location of Terraform variables
       backendFile:
         required: true
         type: string
@@ -44,7 +40,7 @@ jobs:
 
     - name: Terraform Plan
       id: plan
-      run: terraform plan -var-file="${{ inputs.tfvarsFile }}"
+      run: terraform plan
       env:
         ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID}}
