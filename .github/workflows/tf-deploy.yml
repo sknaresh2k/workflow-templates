@@ -1,0 +1,54 @@
+name: tf-workflow-deploy-template
+
+on:
+  workflow_call:
+    inputs:
+      tfvarsFile:
+        required: true
+        type: string
+        description: Location of Terraform variables
+      backendFile:
+        required: true
+        type: string
+        description: Location of the Terraform backend containing resource group, storage account and container
+      environment:
+        required: true
+        type: string
+        description: Environment name to deploy the code
+
+jobs:
+  terraform-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v2
+
+    - uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.2.8
+
+    - name: Verify Terraform version
+      run: terraform --version
+
+    - name: Initialize Terraform and Upgrade modules
+      id: init
+      run: |
+        terraform init -upgrade=true -reconfigure \
+          -backend-config="${{ inputs.backendFile }}" 
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID}}
+        ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
+
+    - name: Terraform Apply
+      id: apply
+      run: terraform apply -auto-approve -var-file="${{ inputs.tfvarsFile }}"
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID}}
+        ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
