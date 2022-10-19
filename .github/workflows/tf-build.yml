@@ -23,7 +23,7 @@ jobs:
     - name: Verify Terraform version
       run: terraform --version
 
-    - name: Initialize Terraform and Upgrade modules
+    - name: Initialize Terraform and Upgrade modules - Cert
       id: init
       run: |
         terraform init -upgrade=true -reconfigure \
